@@ -52,8 +52,6 @@ const config = {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
-        xs: 'calc(var(--radius) - 8px)',
-        xxs: 'calc(var(--radius) - 10px)',
       },
       keyframes: {
         'accordion-down': {
@@ -69,15 +67,9 @@ const config = {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
       },
-      containers: {
-        '2xs': '16rem',
-        '4xs': '8rem',
-        '16xs': '4rem',
-      },
     },
   },
-  plugins: [require('tailwindcss-animate'), require('@tailwindcss/container-queries')],
-  safelist: ['text-[#25F497]', 'text-[#797C7C]', 'text-[#F42566]', 'text-[#F79636]', 'text-[#E0E0EB]'],
+  plugins: [require('tailwindcss-animate')],
 } satisfies Config;
 
 export default config;
