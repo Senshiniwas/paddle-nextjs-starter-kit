@@ -22,6 +22,7 @@ const Page: React.FC = () => {
     cfgScale: 1,
     seed: -1,
     steps: 20,
+    scheduler: 'Simple',
   });
 
   useEffect(() => {
@@ -77,7 +78,7 @@ const Page: React.FC = () => {
 
   return (
     <div>
-      <div className="max-w-auto mx-auto p-4 space-y-4">
+      <div className="w-full mx-auto p-4 space-y-4">
         <div className="flex w-full mx-auto p-6 space-x-4 rounded-md shadow-lg">
           {/* Column 1: Textarea and Model Select */}
           <div className="flex flex-col w-1/3 space-y-4">
@@ -103,7 +104,7 @@ const Page: React.FC = () => {
             <CustomButton
               textInput={textInput}
               selectedModel={selectedModel}
-              imageParameters={imageParameters}
+              imageParameters={imageParameters} // Pass updated parameters here
               onImageGenerated={handleImageGenerated}
             />
           </div>
@@ -113,7 +114,7 @@ const Page: React.FC = () => {
             {imageSrc ? (
               <img src={`data:image/png;base64,${imageSrc}`} alt="Generated" className="mt-4 h-auto" />
             ) : (
-              <div className="mt-4 w-full h-64  flex items-center justify-center">
+              <div className="mt-4 w-full h-64 flex items-center justify-center">
                 <span>No image generated. Please submit.</span>
               </div>
             )}

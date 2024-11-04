@@ -25,7 +25,7 @@ export async function signInWithGithub() {
   const { data } = await supabase.auth.signInWithOAuth({
     provider: 'github',
     options: {
-      redirectTo: `https://paddle-billing.vercel.app/auth/callback`,
+      redirectTo: `https://wasp.j1seki.cc`,
     },
   });
   if (data.url) {

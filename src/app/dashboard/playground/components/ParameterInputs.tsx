@@ -10,6 +10,7 @@ interface ImageParameters {
   seed: number;
   steps: number;
   width: number;
+  scheduler: string;
 }
 
 interface ImageParametersInputProps {
