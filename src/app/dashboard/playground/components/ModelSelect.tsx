@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'; // Adjust imports accordingly
 
 interface Model {
-  title: string;
+  model_name: string; // Use model_name from the API response
 }
 
 interface ModelSelectProps {
@@ -18,17 +18,18 @@ const ModelSelect: React.FC<ModelSelectProps> = ({ onSelect }) => {
 
   useEffect(() => {
     const fetchModels = async () => {
+      setLoading(true); // Start loading
       try {
         const response = await fetch('https://ofor.j1seki.cc/sdapi/v1/sd-models');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        setModels(data);
+        setModels(data); // Assuming data is an array of models
       } catch (err) {
         setError((err as Error).message);
       } finally {
-        setLoading(false);
+        setLoading(false); // Stop loading
       }
     };
 
@@ -36,11 +37,11 @@ const ModelSelect: React.FC<ModelSelectProps> = ({ onSelect }) => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="text-gray-500">Loading models...</div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className="text-red-500">Error: {error}</div>;
   }
 
   return (
@@ -50,8 +51,10 @@ const ModelSelect: React.FC<ModelSelectProps> = ({ onSelect }) => {
       </SelectTrigger>
       <SelectContent>
         {models.map((model) => (
-          <SelectItem key={model.title} value={model.title}>
-            {model.title}
+          <SelectItem key={model.model_name} value={model.model_name}>
+            {' '}
+            {/* Use model.model_name */}
+            {model.model_name} {/* Display model name */}
           </SelectItem>
         ))}
       </SelectContent>

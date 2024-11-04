@@ -1,28 +1,38 @@
 'use client'; // Mark this component as a Client Component
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import ModelSelect from './components/ModelSelect';
 import { Textarea } from '@/components/ui/textarea'; // Adjust the import based on your structure
 import CustomButton from './components/CustomButton'; // Import the CustomButton component
 import { createClient } from '@/utils/supabase/client'; // Adjust the path as necessary
 import { GeneratedImages } from './components/GeneratedImages'; // Adjust the import path
+import ImageParametersInput from './components/ParameterInputs'; // New component for additional parameters
 
 const supabase = createClient();
 
 const Page: React.FC = () => {
-  const [textInput, setTextInput] = useState<string>(''); // State for the text area
-  const [selectedModel, setSelectedModel] = useState<string>(''); // State for the selected model
-  const [imageSrc, setImageSrc] = useState<string | null>(null); // State for the generated image
-  const [userId, setUserId] = useState<string | null>(null); // State for user ID
+  // State management for user input and selected model
+  const [textInput, setTextInput] = useState<string>('');
+  const [selectedModel, setSelectedModel] = useState<string>('');
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [imageParameters, setImageParameters] = useState({
+    batchSize: 1,
+    cfgScale: 1,
+    height: 1152,
+    prompt: '',
+    samplerName: 'Euler',
+    seed: -1,
+    steps: 20,
+    width: 896,
+  });
 
+  // Effect to fetch user ID on component mount
   useEffect(() => {
     const fetchUserId = async () => {
       const { data } = await supabase.auth.getSession();
-      console.log('Session data:', data); // Log the full session data
-
       if (data?.session) {
         setUserId(data.session.user.id);
-        console.log('User ID retrieved:', data.session.user.id); // Log user ID
       } else {
         console.error('No session found');
       }
@@ -31,26 +41,20 @@ const Page: React.FC = () => {
     fetchUserId();
   }, []);
 
+  // Function to upload the generated image
   const uploadImage = async (imageBase64: string) => {
     if (!userId) {
       console.error('User ID is not set');
       return; // Ensure userId is available
     }
 
-    // Log the image base64 to check its validity
-    console.log('Uploading image with base64:', imageBase64);
-
     // Convert Base64 to Blob
     const response = await fetch(`data:image/png;base64,${imageBase64}`);
     const blob = await response.blob();
 
-    // Define the folder path using userId
-    const folderPath = `${userId}/`; // Use userId directly
-
-    // Generate a unique file name
+    // Define the folder path using userId and generate a unique file name
+    const folderPath = `${userId}/`;
     const fileName = `${Date.now()}.png`;
-
-    console.log('Uploading to path:', `${folderPath}${fileName}`); // Log upload path
 
     // Upload the image to Supabase Storage
     const { data, error } = await supabase.storage
@@ -67,30 +71,36 @@ const Page: React.FC = () => {
     }
   };
 
+  // Handle the generated image from the CustomButton
   const handleImageGenerated = async (generatedImage: string) => {
-    console.log('Generated image:', generatedImage); // Log generated image
-    setImageSrc(generatedImage);
+    setImageSrc(generatedImage); // Update image source
     await uploadImage(generatedImage); // Upload the generated image
   };
 
   return (
     <div>
       <div className="max-w-lg mx-auto p-4 space-y-4">
-        {' '}
-        {/* Main container with spacing and centered */}
         <Textarea
           value={textInput}
           onChange={(e) => setTextInput(e.target.value)}
           placeholder="Type your input here..."
           className="w-full"
         />
-        <ModelSelect onChange={setSelectedModel} /> {/* Pass onChange to update selected model */}
-        {/* Use CustomButton and pass necessary props */}
+        <ModelSelect onSelect={setSelectedModel} />
+
+        {/* New component for additional parameters */}
+        <ImageParametersInput
+          parameters={imageParameters}
+          onChange={setImageParameters} // Update parameters state
+        />
+
         <CustomButton
           textInput={textInput}
           selectedModel={selectedModel}
+          imageParameters={imageParameters} // Pass parameters to CustomButton
           onImageGenerated={handleImageGenerated} // Use the new function
         />
+
         {/* Render the generated image or placeholder if it doesn't exist */}
         {imageSrc ? (
           <img src={`data:image/png;base64,${imageSrc}`} alt="Generated" className="mt-4" />
