@@ -1,12 +1,11 @@
 // components/ImageParametersInput.tsx
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface ImageParameters {
   batchSize: number;
   cfgScale: number;
   height: number;
-  prompt: string;
   samplerName: string;
   seed: number;
   steps: number;
@@ -19,76 +18,35 @@ interface ImageParametersInputProps {
 }
 
 const ImageParametersInput: React.FC<ImageParametersInputProps> = ({ parameters, onChange }) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    onChange({ ...parameters, [name]: value }); // Update the specific parameter
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  const handleChange = () => {
+    if (editorRef.current) {
+      const input = editorRef.current.innerText;
+
+      try {
+        const parsedParameters = JSON.parse(input);
+        onChange(parsedParameters);
+      } catch (error) {
+        console.error('Invalid input format:', error);
+      }
+    }
   };
 
+  useEffect(() => {
+    if (editorRef.current) {
+      editorRef.current.innerText = JSON.stringify(parameters, null, 2);
+    }
+  }, [parameters]);
+
   return (
-    <div className="space-y-4">
-      <input
-        type="number"
-        name="batchSize"
-        value={parameters.batchSize}
-        onChange={handleChange}
-        placeholder="Batch Size"
-        className="w-full border p-2"
-      />
-      <input
-        type="number"
-        name="cfgScale"
-        value={parameters.cfgScale}
-        onChange={handleChange}
-        placeholder="CFG Scale"
-        className="w-full border p-2"
-      />
-      <input
-        type="number"
-        name="height"
-        value={parameters.height}
-        onChange={handleChange}
-        placeholder="Height"
-        className="w-full border p-2"
-      />
-      <input
-        type="text"
-        name="prompt"
-        value={parameters.prompt}
-        onChange={handleChange}
-        placeholder="Prompt"
-        className="w-full border p-2"
-      />
-      <input
-        type="text"
-        name="samplerName"
-        value={parameters.samplerName}
-        onChange={handleChange}
-        placeholder="Sampler Name"
-        className="w-full border p-2"
-      />
-      <input
-        type="number"
-        name="seed"
-        value={parameters.seed}
-        onChange={handleChange}
-        placeholder="Seed"
-        className="w-full border p-2"
-      />
-      <input
-        type="number"
-        name="steps"
-        value={parameters.steps}
-        onChange={handleChange}
-        placeholder="Steps"
-        className="w-full border p-2"
-      />
-      <input
-        type="number"
-        name="width"
-        value={parameters.width}
-        onChange={handleChange}
-        placeholder="Width"
-        className="w-full border p-2"
+    <div className="border p-4 rounded-lg overflow-auto bg-black text-white">
+      <div
+        ref={editorRef}
+        contentEditable
+        onInput={handleChange}
+        className="min-h-[200px] font-mono whitespace-pre border-2 border-gray-600 rounded-lg p-2"
+        placeholder="Editable JSON parameters..."
       />
     </div>
   );
